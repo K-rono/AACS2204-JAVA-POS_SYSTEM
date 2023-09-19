@@ -127,5 +127,9 @@ public class Inventory {
         //productID not present
         return null;
     }
+
+    public int getStockAmount(int ProductID){
+        return productStock.get(ProductID);
+    }
     
 }
