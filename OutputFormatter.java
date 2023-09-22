@@ -19,6 +19,8 @@ public class OutputFormatter {
     final static String VERTICAL_LINE = "\u2551";
     final static String VERTICAL_MID_CUT_LEFT = "\u2563";
     final static String VERTICAL_MID_CUT_RIGHT = "\u2560";
+    final static String SOLID_BLOCK = "\u2588";
+    final static String SOLID_BLOCK_HORIZONTAL = "\u2580";
     
     final static String OUT_OF_RANGE_ERROR_MSG = "! INPUT OUT OF RANGE !";
     final static String INVALID_INPUT_MSG = "! INVALID INPUT !";
@@ -28,6 +30,14 @@ public class OutputFormatter {
         StringBuilder line = new StringBuilder();
         for(int i = 0; i < times; i++){
             line.append(HORIZONTAL_LINE);
+        }
+        return line.toString();
+    }
+    
+    public static String printHorizontalBox(int times){
+        StringBuilder line = new StringBuilder();
+        for(int i = 0; i < times; i++){
+            line.append(SOLID_BLOCK_HORIZONTAL);
         }
         return line.toString();
     }
