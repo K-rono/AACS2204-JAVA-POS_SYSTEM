@@ -1,17 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package POS;
-
 /**
  *
  * @author qihong
  */
-//Used for determining Members/Guess throughout whole program.
-public class Guess {
+//Dummy data is used to initialize its superclass as we don't store info about Guess
+public class Guess extends User{
 
     public Guess() {
+        super("Guess","0000","dummy");
     }
-    
 }
