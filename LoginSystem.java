@@ -11,14 +11,12 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class LoginSystem {
-    private static Map<String,String> userCredentials = new HashMap<>();
+    private static final Map<String,String> userCredentials = new HashMap<>();
     private static final String MEMBER_FILE_PATH = "src/Data/member.txt";
     private static final String STAFF_FILE_PATH = "src/Data/staff.txt";
-    private static final String MEMBER_INFO_FILE_PATH = "src/Data/memberInfo.txt";
-    private static final String STAFF_INFO_FILE_PATH = "src/Data/staffInfo.txt";
     private static String file_path;
     
-    public static void readCredentialsFile(int mode){
+    public static void readCredentialsFile(int mode) throws IOException{
         
         //determining to read STAFF credentials or MEMBER credentials
         if(mode == 0){
@@ -37,7 +35,7 @@ public class LoginSystem {
             }
         }
         catch(IOException e){
-            System.out.println("Error occured when reading User's Credentials file");
+            throw e;
         }
     }
     
@@ -52,7 +50,7 @@ public class LoginSystem {
         return storedPassword.equals(userPassword);
     }
     
-    public static Object loadUserData(int mode){
+    public static Object loadUserData(int mode) throws IOException{
         
         try(BufferedReader reader = new BufferedReader(new FileReader(file_path))) {
             String line;
@@ -68,11 +66,9 @@ public class LoginSystem {
             }
         }
         catch(IOException e){
-            System.out.println("Error occured when reading User's Information file");
+            throw e;
         }
-        finally{
-            return null;
-        }
+        
+        return null;
     }
-    
 }
