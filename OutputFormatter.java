@@ -1,13 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package POS;
 
 /**
  *
  * @author qihong
  */
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.util.Scanner;
 
 public class OutputFormatter {
@@ -51,6 +50,24 @@ public class OutputFormatter {
     public static void clearScreen(){
         for(int i = 0; i < 15; i++){
             System.out.println(" ");
+        }
+    }
+    
+    //NOT COMPATIBLE WITH MACOS, FOR REFERENCE : https://github.com/adoptium/adoptium-support/issues/235
+    public static void clearJavaConsoleScreen() {
+        try {
+            Robot rob = new Robot();
+            try {
+                rob.keyPress(KeyEvent.VK_CONTROL); 
+                rob.keyPress(KeyEvent.VK_L); 
+                rob.keyRelease(KeyEvent.VK_L); 
+                rob.keyRelease(KeyEvent.VK_CONTROL); 
+                Thread.sleep(10); //Wait for console to respond to CTRL + L before displaying
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } catch (AWTException e) {
+            e.printStackTrace();
         }
     }
 }
