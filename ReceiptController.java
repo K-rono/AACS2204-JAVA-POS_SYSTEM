@@ -18,6 +18,7 @@ public class ReceiptController {
     private Payment payment;
     private long timeInSecond;
     private final Map<Product, Integer> quantity;
+    
     //constructer
     public ReceiptController(Payment payment) {
         this.payment = payment;
@@ -25,6 +26,9 @@ public class ReceiptController {
         timeInSecond = date.getTime(); 
         quantity = payment.getQuantity();
         receiptID++;
+    }
+    public ReceiptController(){
+        quantity = null;
     }
 
     public static int getReceiptID() {
