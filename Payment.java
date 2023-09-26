@@ -81,6 +81,12 @@ public class Payment {
             System.out.println("Payment successful.");
         }
     }
+    
+    public void cancelPayment() {
+        subTotal = 0;
+        DiscountAmount = 0;
+        DiscountedTotal = 0;
+    }
 
     // Accessor
     public double getSubTotal() {
