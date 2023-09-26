@@ -1,0 +1,2 @@
+cashier,999,SHEK JUN YI,0
+manager,999,CHONG ZHI MING,1
