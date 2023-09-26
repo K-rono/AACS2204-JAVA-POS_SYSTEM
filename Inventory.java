@@ -4,7 +4,7 @@ package POS;
  *
  * @author qihong
  */
-import java.util.List;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,17 +16,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
-public class Inventory {
-    private static final String STOCK_FILE_PATH = "src/stock.txt";
-    private static final String PRODUCT_FILE_PATH = "src/product.txt";
-    private final List<Product> products;
-    private final Map<String, List<Product>> productsByCategory;
+public final class Inventory implements InventoryAPI{
+    private static final String STOCK_FILE_PATH = "src/Data/stock.txt";
+    private static final String PRODUCT_FILE_PATH = "src/Data/product.txt";
+    private final ArrayList<Product> products;
+    private final Map<String, ArrayList<Product>> productsByCategory;
     private final Map<Integer, Integer> productStock;
     
     public Inventory(){
         products = new ArrayList<>();
         productsByCategory = new HashMap<>();
         productStock = new HashMap<>();
+        readProductsFromFile();
+        readStockFromFile();
     }
     
     public void readProductsFromFile(){
@@ -110,26 +112,29 @@ public class Inventory {
         writeStockToFile(productID,productStock.get(productID));
     }
     
-    public List<Product> getProductList(String category){
+    public ArrayList<String> getCategory(){
+        Set<String> categorySet = productsByCategory.keySet();
+        return new ArrayList<>(categorySet);
+    }
+    
+    @Override
+    public ArrayList<Product> getProductList(String category){
         return productsByCategory.get(category);
     }
     
-    public Set<String> getCategory(){
-        return productsByCategory.keySet();
-    }
-    
+    @Override
     public Product getProduct(int productID){
         for(Product product : products){
             if(productID == product.getProductID()){
                 return product;
             }
         }
-        //productID not present
-        return null;
+        //ProductID doesn't exist
+        throw new IllegalArgumentException("ProductID doesn't exist"); 
     }
-
+    
+    @Override
     public int getStockAmount(int ProductID){
         return productStock.get(ProductID);
     }
-    
 }
