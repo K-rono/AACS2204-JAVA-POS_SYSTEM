@@ -1,2 +1,0 @@
-member1,999
-member2,888
