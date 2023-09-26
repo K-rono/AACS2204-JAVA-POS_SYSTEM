@@ -1,2 +1,0 @@
-cashier,999
-manager,999
