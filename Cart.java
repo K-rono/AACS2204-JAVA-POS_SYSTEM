@@ -15,7 +15,7 @@ public class Cart {
     private final Map<Product, Integer> quantity;
     private final InventoryAPI inventory;
 
-    public Cart(InventoryAPI inventory) {
+    public Cart(Inventory inventory) {
         this.quantity = new HashMap<>();
         this.items = new ArrayList<>();
         this.inventory = inventory;
