@@ -108,7 +108,7 @@ public class Cart {
         }
     }
 
-    // accessor
+    // Accessor
     public int getTotalItemCount() {
         int totalQty = 0;
         for (int qty : this.quantity.values()) {

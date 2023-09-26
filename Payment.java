@@ -82,6 +82,19 @@ public class Payment {
         }
     }
 
+    // Accessor
+    public double getSubTotal() {
+        return subTotal;
+    }
+
+    public double getDiscountAmount() {
+        return DiscountAmount;
+    }
+
+    public double getDiscountedTotal() {
+        return DiscountedTotal;
+    }
+
     @Override
     public String toString() {
         return """
