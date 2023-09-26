@@ -11,19 +11,11 @@ import java.util.Map;
 
 public class Cart {
 
-    private final double DISCOUNT_RATE = 0.1;
-    private final double EXTRA_RATE = 0.05;
-
-    private double subTotal;        // total up all
-    private double DiscountAmount;
-    private double DiscountedTotal; // discounted total
-
     private final List<Product> items;
     private final Map<Product, Integer> quantity;
     private final InventoryAPI inventory;
 
-
-    public Cart(Inventory inventory) {
+    public Cart(InventoryAPI inventory) {
         this.quantity = new HashMap<>();
         this.items = new ArrayList<>();
         this.inventory = inventory;
@@ -93,39 +85,8 @@ public class Cart {
     public void clearCart() {
         items.clear();
         this.quantity.clear();
-        subTotal = 0;
-        DiscountAmount = 0;
-        DiscountedTotal = 0;
     }
-
-    // Method of calculations
-    public void calculateTotal(int userType) {
-        subTotal = 0;
-        for (Product product : items) {
-            subTotal += product.getPrice() * this.quantity.get(product);
-        }
-        calculateDiscount(userType); // Ensure discount calculation is always updated
-    }
-
-    private void calculateDiscount(int userType) {
-        DiscountAmount = 0;
-        // UserType = 1 = MEMBER, 2 = GUEST
-        if (userType == 1) {
-            if (subTotal >= 200) {
-                // Member with subtotal >= 200
-                DiscountAmount = subTotal * (DISCOUNT_RATE + EXTRA_RATE);
-            } else {
-                // Member with subtotal < 200
-                DiscountAmount = subTotal * DISCOUNT_RATE;
-            }
-        } else if (userType == 2 && subTotal >= 200) {
-            // Guest with subtotal >= 200
-            DiscountAmount = subTotal * DISCOUNT_RATE;
-        } else {
-            DiscountedTotal = subTotal - DiscountAmount;
-        }
-    }
-
+    
     // Method Display
     public void displayCartContents() {
         if (items.isEmpty()) {
@@ -147,15 +108,6 @@ public class Cart {
         }
     }
 
-    public String displayDiscount() {
-        return """
-        The total amount is RM %.2f
-        Discount amount is RM %.2f
-        --------------------------------------------------------
-        The final amount is RM %.2f
-        """.formatted(subTotal, DiscountAmount, DiscountedTotal);
-    }
-
     // accessor
     public int getTotalItemCount() {
         int totalQty = 0;
@@ -163,18 +115,6 @@ public class Cart {
             totalQty += qty;
         }
         return totalQty;
-    }
-
-    public double getSubTotal() {
-        return subTotal;
-    }
-
-    public double getDiscountedTotal() {
-        return DiscountedTotal;
-    }
-
-    public double getDiscountAmount() {
-        return DiscountAmount;
     }
 
     public List<Product> getItems() {
