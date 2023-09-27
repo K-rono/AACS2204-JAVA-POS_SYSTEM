@@ -64,45 +64,31 @@ public class Cart {
         int currentQty = this.quantity.get(product);
         int modifiedQuantity = quantity + currentQty;
         int stockQty = inventory.getStockAmount(product.getProductID());
-        
+
         if (modifiedQuantity == 0) {
             items.remove(product);
             this.quantity.remove(product);
             System.out.println("The Book \"" + product.getProductName() + "\" is removed from Cart.");
 
-        } else if (modifiedQuantity > 0 && modifiedQuantity < stockQty) {
+        } else if (modifiedQuantity > 0 && modifiedQuantity <= stockQty) {
             this.quantity.put(product, modifiedQuantity);
 
         } else if (modifiedQuantity > stockQty) {
             throw new QuantityMoreThanStockException("! Quantity entered more than available stock !");
-            
+
         } else {
             throw new QuantityOutOfRangeException("! Quantity entered more than current quantity in cart !");
         }
+        
     }
 
-    public void removeItem(int productID, int quantity) {
-        Product product;
+    public void removeItem(int index) {
+        Product product = items.get(index - 1);
 
-        try {
-            product = inventory.getProduct(productID);
+        items.remove(product);
+        this.quantity.remove(product);
+        System.out.println("The Book \"" + product.getProductName() + "\" is removed from Cart.");
 
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid Product ID entered");
-            return;
-        }
-
-        if (this.quantity.containsKey(product)) {
-
-            int currentQty = this.quantity.get(product);
-
-            items.remove(product);
-            this.quantity.remove(product);
-            System.out.println("The Book \"" + product.getProductName() + "\" is remove from Cart.");
-
-        } else {
-            System.out.println("This book has not been added to the Cart.");
-        }
     }
 
     // Used when a user cancels a book purchase
@@ -129,6 +115,7 @@ public class Cart {
                         i++, product.getProductName(), product.getRatedAge(),
                         product.getCategory(), product.getPrice(), qty);
             }
+            System.out.println(OutputFormatter.printHorizontalLine(110));
         }
     }
 
