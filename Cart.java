@@ -11,29 +11,33 @@ import java.util.Map;
 
 public class Cart {
 
-    private final double DISCOUNT_RATE = 0.1;
-    private final double EXTRA_RATE = 0.05;
-
-    private double subTotal;        // total up all
-    private double DiscountAmount;
-    private double DiscountedTotal; // discounted total
-
     private final List<Product> items;
     private final Map<Product, Integer> quantity;
     private final InventoryAPI inventory;
-
 
     public Cart(Inventory inventory) {
         this.quantity = new HashMap<>();
         this.items = new ArrayList<>();
         this.inventory = inventory;
     }
-    
-    public void addItemToCart(int productID,int quantity) {
-        Product product = inventory.getProduct(productID);
-   
+
+    public void addItemToCart(int productID, int quantity, ArrayList<Product> productsInCategory) {
+        Product product = null;
+
+        for (Product p : productsInCategory) {
+            if (p.getProductID() == productID) {
+                product = p;
+            }
+        }
+        if (product == null) {
+            throw new IllegalArgumentException("Invalid product ID entered");
+        }
+
         int stockQty = inventory.getStockAmount(product.getProductID());
-        int currentQty = this.quantity.get(product);
+        int currentQty = 0;
+        if (this.quantity.containsKey(product)) {
+            currentQty = this.quantity.get(product);
+        }
 
         if (stockQty >= quantity + currentQty) {
 
@@ -48,33 +52,45 @@ public class Cart {
         } else { // (stockQty < bookQty + currentQty) 
 
             if (this.quantity.containsKey(product)) {
-                System.out.println("You have currently added this book to your cart and have a total of " + currentQty + "books.");
+                System.out.println("\nYou currently have " + currentQty + " of this book added  to your cart.");
             }
-            System.out.println("There are only " + stockQty + "  copies of this book left.");
+            System.out.println("\nThere are only " + stockQty + " copies of this book left.");
         }
 
     }
 
-    public void modifyQty(Product product, int bookQty, int ModifyType) {
-        if (this.quantity.containsKey(product)) {
+    public void modifyQty(int index, int quantity) {
+        Product product = items.get(index - 1);
+        int currentQty = this.quantity.get(product);
+        int modifiedQuantity = quantity + currentQty;
+        int stockQty = inventory.getStockAmount(product.getProductID());
+        
+        if (modifiedQuantity == 0) {
+            items.remove(product);
+            this.quantity.remove(product);
+            System.out.println("The Book \"" + product.getProductName() + "\" is removed from Cart.");
 
-            int currentQty = this.quantity.get(product);
+        } else if (modifiedQuantity > 0 && modifiedQuantity < stockQty) {
+            this.quantity.put(product, modifiedQuantity);
 
-            if (bookQty == currentQty) {
-                items.remove(product);
-                this.quantity.remove(product);
-                System.out.println("The Book \"" + product.getProductName() + "\" is remove from Cart.");
-            } else if (bookQty <= currentQty) {
-                this.quantity.put(product, currentQty - bookQty);
-            } else {
-                throw new IllegalArgumentException("! Quantity entered more than current quantity in cart !");
-            }
+        } else if (modifiedQuantity > stockQty) {
+            throw new QuantityMoreThanStockException("! Quantity entered more than available stock !");
+            
         } else {
-            System.out.println("This book has not been added to the Cart.");
+            throw new QuantityOutOfRangeException("! Quantity entered more than current quantity in cart !");
         }
     }
 
-    public void removeItem(Product product, int quantity) {
+    public void removeItem(int productID, int quantity) {
+        Product product;
+
+        try {
+            product = inventory.getProduct(productID);
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid Product ID entered");
+            return;
+        }
 
         if (this.quantity.containsKey(product)) {
 
@@ -83,7 +99,7 @@ public class Cart {
             items.remove(product);
             this.quantity.remove(product);
             System.out.println("The Book \"" + product.getProductName() + "\" is remove from Cart.");
-            
+
         } else {
             System.out.println("This book has not been added to the Cart.");
         }
@@ -93,67 +109,27 @@ public class Cart {
     public void clearCart() {
         items.clear();
         this.quantity.clear();
-        subTotal = 0;
-        DiscountAmount = 0;
-        DiscountedTotal = 0;
-    }
-
-    // Method of calculations
-    public void calculateTotal(int userType) {
-        subTotal = 0;
-        for (Product product : items) {
-            subTotal += product.getPrice() * this.quantity.get(product);
-        }
-        calculateDiscount(userType); // Ensure discount calculation is always updated
-    }
-
-    private void calculateDiscount(int userType) {
-        DiscountAmount = 0;
-        // UserType = 1 = MEMBER, 2 = GUEST
-        if (userType == 1) {
-            if (subTotal >= 200) {
-                // Member with subtotal >= 200
-                DiscountAmount = subTotal * (DISCOUNT_RATE + EXTRA_RATE);
-            } else {
-                // Member with subtotal < 200
-                DiscountAmount = subTotal * DISCOUNT_RATE;
-            }
-        } else if (userType == 2 && subTotal >= 200) {
-            // Guest with subtotal >= 200
-            DiscountAmount = subTotal * DISCOUNT_RATE;
-        } else {
-            DiscountedTotal = subTotal - DiscountAmount;
-        }
     }
 
     // Method Display
     public void displayCartContents() {
         if (items.isEmpty()) {
-            System.out.println(" << Cart is empty. No items added. >> ");
+            throw new IllegalStateException("No items has been added to cart yet");
 
         } else {
             int i = 1;
             System.out.println("                                 Cart List                                    ");
-            System.out.println("------------------------------------------------------------------------------");
-            System.out.printf("%-5s%-20s%-15s%-15s%-15s%-15s\n",
+            System.out.println(OutputFormatter.printHorizontalLine(110));
+            System.out.printf("%-5s%-40s%-15s%-15s%-15s%-15s\n",
                     "Bil", "Book Name", "Rated Age", "Category", "Price (RM)", "Quantity");
-            System.out.println("------------------------------------------------------------------------------");
+            System.out.println(OutputFormatter.printHorizontalLine(110));
             for (Product product : items) {
                 int qty = this.quantity.get(product);
-                System.out.printf("%-5d%-20s%-15s%-15s%-15.2f%-15d\n",
+                System.out.printf("%-5d%-40s%-15s%-15s%-15.2f%-15d\n",
                         i++, product.getProductName(), product.getRatedAge(),
                         product.getCategory(), product.getPrice(), qty);
             }
         }
-    }
-
-    public String displayDiscount() {
-        return """
-        The total amount is RM %.2f
-        Discount amount is RM %.2f
-        --------------------------------------------------------
-        The final amount is RM %.2f
-        """.formatted(subTotal, DiscountAmount, DiscountedTotal);
     }
 
     // accessor
@@ -163,18 +139,6 @@ public class Cart {
             totalQty += qty;
         }
         return totalQty;
-    }
-
-    public double getSubTotal() {
-        return subTotal;
-    }
-
-    public double getDiscountedTotal() {
-        return DiscountedTotal;
-    }
-
-    public double getDiscountAmount() {
-        return DiscountAmount;
     }
 
     public List<Product> getItems() {
