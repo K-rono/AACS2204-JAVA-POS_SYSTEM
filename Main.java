@@ -175,6 +175,7 @@ public class Main {
     public static void MainMenu(Scanner input) {
         Inventory inventory = new Inventory();
         Cart cart = new Cart(inventory);
+        Payment payment = new Payment(cart);
         int choice = 0;
         //int maxChoice = (currentSessionUser instanceof Staff) ? 7 : 5; // Max choice depends on staff or non-staff
 
@@ -213,7 +214,14 @@ public class Main {
                         modifyCartMenu(input, cart);
                     }
                     case 4 -> {
-                        System.out.println("YET TO BE IMPLEMENTED");
+                        int userType = 0;
+                        if (currentSessionUser instanceof Member) {
+                            userType = 1;
+                        }
+                        if (currentSessionUser instanceof Guess)
+                            userType = 2;
+                        
+                        checkOut(input, cart, payment, userType);
                     }
                     case 5 -> {
 
@@ -250,6 +258,114 @@ public class Main {
 
         } while (choice != 5);
     }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //1. Add [Payment payment = new Payment(cart);] in MainMenu
+    //2. And change case 4 in MainMenu
+    
+    public static void cashPaymentProcess(Scanner input, Payment payment, int methodPayment) {
+        double cashAmount = 0;
+        do {
+            System.out.print("[INPUT] Amount Paid >>> ");
+            cashAmount = input.nextDouble();
+            ConsumeCR(input);
+            payment.processCashPayment(cashAmount, methodPayment);
+            
+        } while (cashAmount >= payment.getDiscountedTotal());
+
+    }
+
+    public static void paymentProcess(Scanner input, Payment payment, int userType) {
+        int choice = 0;
+        System.out.println("Payment Option: ");
+        System.out.println("1| Cash Payment");
+        System.out.println("2| Online Payment");
+        System.out.println(OutputFormatter.printHorizontalLine(25));
+        System.out.print("INPUT >>> ");
+        do {
+            try {
+                choice = input.nextInt();
+                ConsumeCR(input);
+
+                switch (choice) {
+                    case 1 -> {
+                        cashPaymentProcess(input, payment, choice);
+                    }
+                    case 2 -> {
+                        payment.processOnlineTransferPayment(choice);
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+                OutputFormatter.clearJavaConsoleScreen();
+            } catch (IllegalArgumentException e) {
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                OutputFormatter.PressToCont();
+                OutputFormatter.clearJavaConsoleScreen();
+            }
+
+        } while (choice == 1 || choice == 2);
+    }
+
+    public static void checkOut(Scanner input, Cart cart, Payment payment, int userType) {
+        int choice = 0;
+        do {
+            OutputFormatter.clearJavaConsoleScreen();
+            displayCart(cart);
+            System.out.println(OutputFormatter.printHorizontalLine(110));
+            System.out.println("                               CHECKOUT SUMMARY                               ");
+            System.out.println(OutputFormatter.printHorizontalLine(110));
+            cart.displayCartContents();
+            payment.calculateTotal(userType);
+            payment.displayAmount();
+            System.out.println("1| Proceed Payment");
+            System.out.println("2| Exit Payment");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.print("INPUT >>> ");
+
+            try {
+                choice = input.nextInt();
+                ConsumeCR(input);
+
+                switch (choice) {
+                    case 1 -> {
+                        paymentProcess(input, payment, userType);
+                        
+                        System.out.println(OutputFormatter.printHorizontalLine(25));
+                        System.out.println("Do you want to continue purchase? (Y/N)");
+                        System.out.print("INPUT >>> ");
+                        
+                        OutputFormatter.PressToCont();
+                    }
+                    case 2 -> {
+                        payment.cancelPayment();
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+                OutputFormatter.clearJavaConsoleScreen();
+            } catch (IllegalArgumentException e) {
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                OutputFormatter.PressToCont();
+                OutputFormatter.clearJavaConsoleScreen();
+            }
+
+        } while (choice != 2);
+        
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void categoryMenu(Scanner input, Inventory inventory, Cart cart) {
         int choice = 0;
