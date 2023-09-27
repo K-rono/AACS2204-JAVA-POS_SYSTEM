@@ -110,16 +110,6 @@ public class Payment {
         return quantity;
     }
 
-    @Override
-    public String toString() {
-        return """
-        The total amount is RM %.2f
-        Discount amount is RM %.2f
-        --------------------------------------------------------
-        The final amount is RM %.2f
-        """.formatted(subTotal, DiscountAmount, DiscountedTotal);
-    }
-
     public void displayAmount() {
         System.out.printf("%-20s: RM %.2f\n"
                 + "%-20s: RM %.2f\n"
