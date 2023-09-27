@@ -1,2 +1,2 @@
-member1,999
-member2,888
+member1,999,LIM QI HONG,500
+member2,888,LAI YOKE YAU,600
