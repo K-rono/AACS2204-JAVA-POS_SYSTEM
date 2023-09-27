@@ -11,6 +11,8 @@ import java.io.IOException;
  * @author qihong
  */
 public class Product {
+    private static final String[] categories = {"Horror","History","Mathematics","Programming"};
+    private static final String[] ageRatings = {"G","PG-13","R"};
     public static final String filePath = "src/lastAssignedID.txt";
     public static int lastAssignedID = 1001;
     private int productID;
@@ -78,6 +80,14 @@ public class Product {
 
     public double getPrice() {
         return price;
+    }
+    
+    public static String[] getCategoryList(){
+        return categories;
+    }
+    
+    public static String[] getAgeRatingList(){
+        return ageRatings;
     }
 
     //Read LastAssignedID
