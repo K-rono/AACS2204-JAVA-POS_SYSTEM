@@ -100,7 +100,15 @@ public class Payment {
     public double getDiscountedTotal() {
         return DiscountedTotal;
     }
-
+    
+    public List<Product> getItems() {
+        return items;
+    }
+    
+    public Map<Product, Integer> getQuantity() {
+        return quantity;
+    }
+    
     @Override
     public String toString() {
         return """
