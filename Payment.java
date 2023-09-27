@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Payment {
+
     // Constants for user types
     private static final int MEMBER = 1;
     private static final int GUEST = 2;
@@ -15,7 +16,7 @@ public class Payment {
     // Constants for discount rates
     private final double DISCOUNT_RATE = 0.1;
     private final double EXTRA_RATE = 0.05;
-    
+
     private double subTotal;        // total up all
     private double DiscountAmount;
     private double DiscountedTotal; // discounted total
@@ -58,7 +59,7 @@ public class Payment {
             DiscountedTotal = subTotal - DiscountAmount;
         }
     }
-    
+
     public void processCashPayment(double amountPaid, int paymentMethod) {
         processPayment(amountPaid, paymentMethod);
     }
@@ -81,7 +82,7 @@ public class Payment {
             System.out.println("Payment successful.");
         }
     }
-    
+
     public void cancelPayment() {
         subTotal = 0;
         DiscountAmount = 0;
@@ -100,15 +101,15 @@ public class Payment {
     public double getDiscountedTotal() {
         return DiscountedTotal;
     }
-    
+
     public List<Product> getItems() {
         return items;
     }
-    
+
     public Map<Product, Integer> getQuantity() {
         return quantity;
     }
-    
+
     @Override
     public String toString() {
         return """
@@ -117,6 +118,16 @@ public class Payment {
         --------------------------------------------------------
         The final amount is RM %.2f
         """.formatted(subTotal, DiscountAmount, DiscountedTotal);
+    }
+
+    public void displayAmount() {
+        System.out.printf("%-20s: RM %.2f\n"
+                + "%-20s: RM %.2f\n"
+                + "%-20s: RM %.2f\n",
+                "Total Amount", subTotal,
+                "Discount Amount", DiscountAmount,
+                "Final Amount", DiscountedTotal);
+        System.out.println(OutputFormatter.printHorizontalLine(110));
     }
 
 }
