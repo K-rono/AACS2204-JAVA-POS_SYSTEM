@@ -3,9 +3,3 @@
 1003,Society in a nutshell,PG-13,History,40.8
 1004,She is dead,R,Horror,20
 1005,Pre-Calculus,G,Mathematics,30.5
-1006,100 Reasons why Communism is great,PG-13,History,70.5
-1007,SpringBoot in one book,G,Programming,34.5
-1008,I reincarnated as a Sword,R,Horror,20.5
-1009,GOJO IS DEAD,R,Horror,150.5
-1010,Mein Kampf,PG-13,History,69.69
-1011,What's the point of LIFE,R,Programming,67.67

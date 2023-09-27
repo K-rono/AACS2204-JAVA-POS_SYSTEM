@@ -1,5 +1,7 @@
 package POS;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Qihong

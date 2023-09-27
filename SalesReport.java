@@ -13,31 +13,21 @@ import java.util.*;
 public class SalesReport{ 
     
     // data field
-    private int qty,productID, totalQty;
+    private int totalQty;
     private double totalRevenue;
-    InventoryAPI inventoryAPI;
-    private List<Receipt> receiptList;
+    private final List<Receipt> receiptList;
     
     //constructor    
         public SalesReport(){
-            qty = 0;
-            productID = 0;
-            this.receiptList = ReceiptManager.readFile();
+            this.receiptList = ReceiptController.readFile();
         }
         
-        // getter       
-        public int getProductID(){
-            return productID;
-        }
         
-        public int getQty(){
-            return qty;
-        }
  
     // method
     // calculate for product qty
         public Map<Integer, Integer> calculateProductQuantity(){
-            
+           
             Map<Integer, Integer> qtyMap = new HashMap<>();
             
             for (Receipt receipt : receiptList) {
@@ -78,7 +68,7 @@ public class SalesReport{
     // total quantity
     public int getTotalQuantity() {
     Map<Integer, Integer> qtyMap = calculateProductQuantity();
-    
+    totalQty = 0;
     for (int quantity : qtyMap.values()) {
         totalQty += quantity;
     }
@@ -89,7 +79,7 @@ public class SalesReport{
     // total revenue
     public double getTotalRevenue() {
     Map<Integer, Double> productSalesMap = calculateProductSales();
-    
+    totalRevenue = 0.0;
     for (double revenue : productSalesMap.values()) {
         totalRevenue += revenue;
     }
@@ -115,13 +105,11 @@ public class SalesReport{
         // Check if productSalesMap contains the productID
         if (productSalesMap.containsKey(productID)) {
             double productSales = productSalesMap.get(productID);
-            if (inventoryAPI != null) {
-                String productName = inventoryAPI.getProduct(entry.getKey()).getProductName();
-                System.out.printf("%-10d %-20s %-15d $%.2f%n", productID, productName, productQty, productSales);
-}           else {
-                System.out.println("InventoryAPI is null. Cannot retrieve product information.");
-            }
-        } else {
+           
+            String productName = inventoryAPI.getProduct(entry.getKey()).getProductName();
+            System.out.printf("%-10d %-20s %-15d $%.2f%n", productID, productName, productQty, productSales);
+        } 
+        else {
             System.out.println("Product with ID " + productID + " not found in productSalesMap.");
         }
     }
@@ -136,20 +124,6 @@ public class SalesReport{
         System.out.printf("Total Sales Revenue: $%.2f%n", getTotalRevenue());
         System.out.printf("Total Item Sold: %d%n", getTotalQuantity());
         System.out.println();
-    }
-
-    public static void main(String[] args) {
-       
-        SalesReport salesReport = new SalesReport();
-        InventoryAPI inventoryAPI = new Inventory();
-
-        //calculation
-        salesReport.calculateProductQuantity();
-        salesReport.calculateProductSales();
-        
-        // output
-        salesReport.generateProductSalesReport();
-        salesReport.generateTotalSalesReport();
     }
     
 }

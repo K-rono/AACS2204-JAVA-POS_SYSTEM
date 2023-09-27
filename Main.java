@@ -235,7 +235,8 @@ public class Main {
                     }
                     case 7 -> {
                         if (currentSessionUser instanceof Staff) {
-                            System.out.println("YET TO BE IMPLEMENTED");
+                            SalesReportMenu(input); // SalesReport
+                            OutputFormatter.PressToCont(); 
                         } else {
                             throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                         }
@@ -270,7 +271,7 @@ public class Main {
             ConsumeCR(input);
             payment.processCashPayment(cashAmount, methodPayment);
             
-        } while (cashAmount >= payment.getDiscountedTotal());
+        } while (cashAmount <= payment.getDiscountedTotal());
 
     }
 
@@ -316,7 +317,6 @@ public class Main {
         int choice = 0;
         do {
             OutputFormatter.clearJavaConsoleScreen();
-            displayCart(cart);
             System.out.println(OutputFormatter.printHorizontalLine(110));
             System.out.println("                               CHECKOUT SUMMARY                               ");
             System.out.println(OutputFormatter.printHorizontalLine(110));
@@ -824,6 +824,57 @@ public class Main {
     public static void editProduct(Scanner input, Inventory inventory) {
 
     }
+    
+    // SLAES REPORT
+    public static void SalesReportMenu(Scanner input) {
+        int choice = 0;
+        SalesReport salesReport = new SalesReport();
+        do{
+            
+        salesReport.calculateProductQuantity();
+        salesReport.calculateProductSales();
+        
+        System.out.printf("%-25s\n", "[SALES REPORT]");
+        System.out.printf("%-25s\n", "1| Product Sales Report");
+        System.out.printf("%-25s\n", "2| Total Sales Report");
+        System.out.printf("%-25s\n", "3| Return");
+        System.out.println(OutputFormatter.printHorizontalLine(25));
+        System.out.print("INPUT >>> ");
+        
+         try{
+             choice = input.nextInt();
+               ConsumeCR(input);
+            
+             switch (choice) {
+                   case 1 -> {
+                       salesReport.generateProductSalesReport();
+                       OutputFormatter.PressToCont();
+                       OutputFormatter.clearJavaConsoleScreen();
+                   }
+                
+                  case 2 -> {
+                     salesReport.generateTotalSalesReport();
+                     OutputFormatter.PressToCont();
+                     OutputFormatter.clearJavaConsoleScreen();
+                   }
+                  
+                  case 3 -> {
+                      
+                  }
+             }
+            } catch (InputMismatchException e) {
+                    System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                    OutputFormatter.PressToCont();
+                    ConsumeCR(input);
+                    OutputFormatter.clearJavaConsoleScreen();
+            } catch (IllegalArgumentException e) {
+                    System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    OutputFormatter.PressToCont();
+                    OutputFormatter.clearJavaConsoleScreen();
+            }
+        } while (choice != 3);
+        
+        }
 
     public static void ConsumeCR(Scanner input) {
         input.nextLine();
