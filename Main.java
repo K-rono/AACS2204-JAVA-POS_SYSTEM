@@ -26,9 +26,41 @@ public class Main {
                 choice = input.nextInt();
                 ConsumeCR(input);
 
-                if (choice < 1 || choice > 4) {
-                    throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                switch (choice) {
+                    case 1, 2 -> {
+                        int retry;
+
+                        do {
+                            boolean LoginSuccess = Login(input, choice);
+                            if (LoginSuccess) {
+                                retry = 0; //reset 'retry' value if user succesfully log in AFTER failing one or more times
+                                MainMenu(input);
+                            } else {
+                                retry = IncorrectLogin(input);
+                                //To loop LoginMenu() if user chooses to NOT retry
+                                if (retry == 2) {
+                                    choice = 0;
+                                    OutputFormatter.PressToCont();
+                                    OutputFormatter.clearJavaConsoleScreen();
+                                    break;
+                                }
+                            }
+                        } while (retry == 1);
+
+                    }
+                    case 3 -> {
+                        currentSessionUser = new Guess();
+                        OutputFormatter.clearJavaConsoleScreen();
+                        MainMenu(input);
+                    }
+                    case 4 -> {
+
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
                 }
+
             } catch (InputMismatchException e) {
                 System.out.println(OutputFormatter.INVALID_INPUT_MSG);
                 OutputFormatter.PressToCont();
@@ -39,42 +71,6 @@ public class Main {
                 System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
-            }
-
-            switch (choice) {
-                case 1, 2 -> {
-                    int retry;
-
-                    do {
-                        boolean LoginSuccess = Login(input, choice);
-                        if (LoginSuccess) {
-                            retry = 0; //reset 'retry' value if user succesfully log in AFTER failing one or more times
-                            MainMenu(input);
-                        } else {
-                            retry = IncorrectLogin(input);
-                            //To loop LoginMenu() if user chooses to NOT retry
-                            if (retry == 2) {
-                                choice = 0;
-                                OutputFormatter.PressToCont();
-                                OutputFormatter.clearJavaConsoleScreen();
-                                break;
-                            }
-                        }
-                    } while (retry == 1);
-
-                }
-                case 3 -> {
-                    currentSessionUser = new Guess();
-                    OutputFormatter.clearJavaConsoleScreen();
-                    MainMenu(input);
-                }
-                case 4 -> {
-
-                }
-                default -> {
-                    //Out of range exception had been handled in TRY CATCH block above.
-                    //This was done to reduce nesting as nesting was getting 4 blocks deep :D
-                }
             }
 
         } while (choice != 4);
@@ -180,7 +176,7 @@ public class Main {
         Inventory inventory = new Inventory();
         Cart cart = new Cart(inventory);
         int choice = 0;
-        int maxChoice = (currentSessionUser instanceof Staff) ? 7 : 5; // Max choice depends on staff or non-staff
+        //int maxChoice = (currentSessionUser instanceof Staff) ? 7 : 5; // Max choice depends on staff or non-staff
 
         do {
             OutputFormatter.clearJavaConsoleScreen();
@@ -193,7 +189,7 @@ public class Main {
             System.out.printf("%-25s\n", "5| Exit");
 
             if (currentSessionUser instanceof Staff) {
-                System.out.printf("%-25s\n", "6| Edit Product Information");
+                System.out.printf("%-25s\n", "6| Product Manager");
                 System.out.printf("%-25s\n", "7| Sales Report");
             }
 
@@ -204,9 +200,43 @@ public class Main {
                 choice = input.nextInt();
                 ConsumeCR(input);
 
-                if (choice < 1 || choice > maxChoice) {
-                    throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                switch (choice) {
+                    case 1 -> {
+                        categoryMenu(input, inventory, cart);
+                    }
+                    case 2 -> {
+                        displayCart(cart);
+                        OutputFormatter.PressToCont();
+                        OutputFormatter.clearJavaConsoleScreen();
+                    }
+                    case 3 -> {
+                        modifyCartMenu(input, cart);
+                    }
+                    case 4 -> {
+                        System.out.println("YET TO BE IMPLEMENTED");
+                    }
+                    case 5 -> {
+
+                    }
+                    case 6 -> {
+                        if (currentSessionUser instanceof Staff) {
+                            ProductManagerMenu(input, inventory);
+                        } else {
+                            throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                        }
+                    }
+                    case 7 -> {
+                        if (currentSessionUser instanceof Staff) {
+                            System.out.println("YET TO BE IMPLEMENTED");
+                        } else {
+                            throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                        }
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
                 }
+
             } catch (InputMismatchException e) {
                 System.out.println(OutputFormatter.INVALID_INPUT_MSG);
                 OutputFormatter.PressToCont();
@@ -216,39 +246,6 @@ public class Main {
                 System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
-            }
-
-            switch (choice) {
-                case 1 -> {
-                    categoryMenu(input, inventory, cart);
-                }
-                case 2 -> {
-                    displayCart(cart);
-                    OutputFormatter.PressToCont();
-                    OutputFormatter.clearJavaConsoleScreen();
-                }
-                case 3 -> {
-                    modifyCartMenu(input,cart);
-                }
-                case 4 -> {
-                    System.out.println("YET TO BE IMPLEMENTED");
-                }
-                case 5 -> {
-                   
-                }
-                case 6 -> {
-                    if (currentSessionUser instanceof Staff) {
-                        System.out.println("YET TO BE IMPLEMENTED");
-                    }
-                }
-                case 7 -> {
-                    if (currentSessionUser instanceof Staff) {
-                        System.out.println("YET TO BE IMPLEMENTED");
-                    }
-                }
-                default -> {
-                    //Out of range exception had been handled in TRY CATCH block above TO reduce nesting
-                }
             }
 
         } while (choice != 5);
@@ -275,9 +272,27 @@ public class Main {
                 choice = input.nextInt();
                 ConsumeCR(input);
 
-                if (choice < 1 || choice > 5) {
-                    throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                switch (choice) {
+                    case 1 -> {
+                        bookMenu(inventory, cart, "Horror", input);
+                    }
+                    case 2 -> {
+                        bookMenu(inventory, cart, "History", input);
+                    }
+                    case 3 -> {
+                        bookMenu(inventory, cart, "Mathematics", input);
+                    }
+                    case 4 -> {
+                        bookMenu(inventory, cart, "Programming", input);
+                    }
+                    case 5 -> {
+
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
                 }
+
             } catch (InputMismatchException e) {
                 System.out.println(OutputFormatter.INVALID_INPUT_MSG);
                 OutputFormatter.PressToCont();
@@ -287,27 +302,6 @@ public class Main {
                 System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
-            }
-
-            switch (choice) {
-                case 1 -> {
-                    bookMenu(inventory, cart, "Horror", input);
-                }
-                case 2 -> {
-                    bookMenu(inventory, cart, "History", input);
-                }
-                case 3 -> {
-                    bookMenu(inventory, cart, "Mathematics", input);
-                }
-                case 4 -> {
-                    bookMenu(inventory, cart, "Programming", input);
-                }
-                case 5 -> {
-                    
-                }
-                default -> {
-                    //Out of range exception had been handled in TRY CATCH block above TO reduce nesting
-                }
             }
 
         } while (choice != 5);
@@ -336,7 +330,11 @@ public class Main {
                 choice = input.nextInt();
                 ConsumeCR(input);
 
-                if (choice < 1 || choice > 2) {
+                if (choice == 2) {
+                    break;
+                } else if (choice == 1) {
+                    chooseBook(productsInCategory, input, cart);
+                } else {
                     throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 }
             } catch (InputMismatchException e) {
@@ -348,14 +346,6 @@ public class Main {
                 System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
-            }
-
-            if (choice == 2) {
-                break;
-            }
-
-            if (choice == 1) {
-                chooseBook(productsInCategory, input, cart);
             }
 
         } while (choice != 2);
@@ -392,19 +382,18 @@ public class Main {
     }
 
     public static void displayCart(Cart cart) {
-        try{
-        cart.displayCartContents();
-        }catch(IllegalStateException e){
+        try {
+            cart.displayCartContents();
+        } catch (IllegalStateException e) {
             System.out.println("No items has been added to cart yet");
         }
     }
 
-    public static void modifyCartMenu(Scanner input, Cart cart){
+    public static void modifyCartMenu(Scanner input, Cart cart) {
         int choice = 0;
-        do{
+        do {
             OutputFormatter.clearJavaConsoleScreen();
             displayCart(cart);
-            System.out.println(OutputFormatter.printHorizontalLine(70));
             System.out.println("MODIFY CART");
             System.out.println(OutputFormatter.printHorizontalLine(25));
             System.out.println("1| Clear cart");
@@ -412,14 +401,146 @@ public class Main {
             System.out.println("3| Remove item");
             System.out.println("4| Return");
             System.out.println(OutputFormatter.printHorizontalLine(25));
-            System.out.println("INPUT >>> ");
-        
+            System.out.print("INPUT >>> ");
+
             try {
                 choice = input.nextInt();
                 ConsumeCR(input);
 
-                if (choice < 1 || choice > 4) {
-                    throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                switch (choice) {
+                    case 1 -> {
+                        cart.clearCart();
+                        OutputFormatter.PressToCont();
+                    }
+                    case 2 -> {
+                        modifyQuantity(cart, input);
+                    }
+                    case 3 -> {
+                        removeItem(cart, input);
+                    }
+                    case 4 -> {
+
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+                OutputFormatter.clearJavaConsoleScreen();
+            } catch (IllegalArgumentException e) {
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                OutputFormatter.PressToCont();
+                OutputFormatter.clearJavaConsoleScreen();
+            }
+
+        } while (choice != 4);
+    }
+
+    public static void modifyQuantity(Cart cart, Scanner input) {
+        int maxChoice = cart.getItems().size();
+        try {
+            OutputFormatter.clearJavaConsoleScreen();
+            displayCart(cart);
+            System.out.print("Choose Number (1/2/3...) >>> ");
+            int index = input.nextInt();
+            ConsumeCR(input);
+
+            if (index < 1 || index > maxChoice) {
+                throw new IndexOutOfBoundsException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+            }
+
+            System.out.print("Quantity to add (-1 to decrease) >>> ");
+            int quantity = input.nextInt();
+            ConsumeCR(input);
+
+            cart.modifyQty(index, quantity);
+
+        } catch (InputMismatchException e) {
+            System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+            OutputFormatter.PressToCont();
+            ConsumeCR(input);
+            OutputFormatter.clearJavaConsoleScreen();
+
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+            OutputFormatter.PressToCont();
+            OutputFormatter.clearJavaConsoleScreen();
+
+        } catch (QuantityOutOfRangeException e) {
+            System.out.println("Quantity entered more than current quantity in cart");
+            OutputFormatter.PressToCont();
+            OutputFormatter.clearJavaConsoleScreen();
+
+        } catch (QuantityMoreThanStockException e) {
+            System.out.println("Quantity entered more than available stock");
+            OutputFormatter.PressToCont();
+            OutputFormatter.clearJavaConsoleScreen();
+
+        }
+    }
+
+    public static void removeItem(Cart cart, Scanner input) {
+        int maxChoice = cart.getItems().size();
+
+        try {
+            OutputFormatter.clearJavaConsoleScreen();
+            displayCart(cart);
+            System.out.print("Choose Number (1/2/3...) >>> ");
+            int index = input.nextInt();
+            ConsumeCR(input);
+
+            if (index < 1 || index > maxChoice) {
+                throw new IndexOutOfBoundsException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+            }
+
+            cart.removeItem(index);
+
+        } catch (InputMismatchException e) {
+            System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+            OutputFormatter.PressToCont();
+            ConsumeCR(input);
+            OutputFormatter.clearJavaConsoleScreen();
+
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+            OutputFormatter.PressToCont();
+            OutputFormatter.clearJavaConsoleScreen();
+        }
+    }
+
+    public static void ProductManagerMenu(Scanner input, Inventory inventory) {
+        int choice = 0;
+        do {
+            OutputFormatter.clearJavaConsoleScreen();
+            System.out.println("PRODUCT MANAGER");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.println("1| Add product");
+            System.out.println("2| Edit product");
+            System.out.println("3| Return");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.print("INPUT >>> ");
+
+            try {
+                choice = input.nextInt();
+                ConsumeCR(input);
+
+                switch (choice) {
+                    case 1 -> {
+                        addProduct(input, inventory);
+                    }
+                    case 2 -> {
+                        editProduct(input, inventory);
+                    }
+                    case 3 -> {
+
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
                 }
             } catch (InputMismatchException e) {
                 System.out.println(OutputFormatter.INVALID_INPUT_MSG);
@@ -431,79 +552,163 @@ public class Main {
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
             }
-            
-            switch(choice){
-                case 1 -> {
-                    cart.clearCart();
-                    OutputFormatter.PressToCont();
-                }
-                case 2 -> {
-                    modifyQuantity(cart,input);
-                }
-                case 3 -> {
-                    removeItem(cart,input);
-                }
-                case 4 -> {
-                    
-                }
-                default -> {
-                    //Out of range exception had been handled in TRY CATCH block above TO reduce nesting
-                }
-            }
-        }while(choice != 4);
+        } while (choice != 3);
     }
-    
-    public static void modifyQuantity(Cart cart, Scanner input){
-        int choice = 0;
-        int maxChoice = cart.getItems().size();
-        do{
-            try{
-                OutputFormatter.clearJavaConsoleScreen();
-                displayCart(cart);
-                System.out.println(OutputFormatter.printHorizontalLine(25));
-                System.out.print("Choose Number (1/2/3...) >>> ");
-                int index = input.nextInt();
-                ConsumeCR(input);
-                
-                if(index < 1 || index > maxChoice){
-                    throw new IndexOutOfBoundsException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+
+    public static void displayCategoryList() {
+        String[] category = Product.getCategoryList();
+        for (int i = 0; i < category.length; i++) {
+            System.out.println(i + 1 + "| " + category[i]);
+        }
+    }
+
+    public static void displayAgeRatingList() {
+        String[] ageRating = Product.getAgeRatingList();
+        for (int i = 0; i < ageRating.length; i++) {
+            System.out.println(i + 1 + "| " + ageRating[i]);
+        }
+    }
+
+    public static void addProduct(Scanner input, Inventory inventory) {
+        String name = "";
+        double price = 0;
+        String ageRating = "";
+        String category = "";
+        int quantity = 0;
+
+        OutputFormatter.clearJavaConsoleScreen();
+        System.out.println("ADD PRODUCT");
+        System.out.println(OutputFormatter.printHorizontalLine(25));
+
+        //PRODUCT NAME
+        do {
+            try {
+
+                System.out.print("Product Name >>> ");
+                name = input.nextLine();
+
+                if (name.isBlank()) {
+                    throw new IllegalProductNameException("      ! Product name cannot be empty !");
                 }
-                
-                System.out.print("Quantity to add (-1 to decrease) >>> ");
-                int quantity = input.nextInt();
+
+            } catch (IllegalProductNameException e) {
+                System.out.println("Product name cannot be empty");
+                OutputFormatter.PressToCont();
+            }
+        } while (name.isBlank());
+
+        //PRICE
+        do {
+            try {
+
+                System.out.print("Price (RM) [-IVES ARE IGNORED] >>> ");
+                price = Math.abs(input.nextDouble());
                 ConsumeCR(input);
-                
-                cart.modifyQty(index, quantity);
-                
+
             } catch (InputMismatchException e) {
                 System.out.println(OutputFormatter.INVALID_INPUT_MSG);
                 OutputFormatter.PressToCont();
                 ConsumeCR(input);
-                OutputFormatter.clearJavaConsoleScreen();
-                
+            }
+        } while (price == 0);
+
+        //AGE RATING
+        do {
+            try {
+                System.out.println(OutputFormatter.printHorizontalLine(10));
+                System.out.println("Age Rating");
+                System.out.println(OutputFormatter.printHorizontalLine(10));
+                displayAgeRatingList();
+                System.out.println(OutputFormatter.printHorizontalLine(10));
+                System.out.print("Choose >>> ");
+
+                int index = input.nextInt();
+                ConsumeCR(input);
+
+                ageRating = Product.getAgeRatingList()[index - 1];
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
             } catch (IndexOutOfBoundsException e) {
                 System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
-                OutputFormatter.clearJavaConsoleScreen();
+            }
+        } while (ageRating.isEmpty());
+
+        //CATEGORY
+        do {
+            try {
+                System.out.println("\n");
+                System.out.println(OutputFormatter.printHorizontalLine(10));
+                System.out.println("Category");
+                System.out.println(OutputFormatter.printHorizontalLine(10));
+                displayCategoryList();
+                System.out.println(OutputFormatter.printHorizontalLine(10));
+                System.out.print("Choose >>> ");
+
+                int index = input.nextInt();
+                ConsumeCR(input);
+
+                category = Product.getCategoryList()[index - 1];
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                OutputFormatter.PressToCont();
+            }
+        } while (category.isEmpty());
+
+        int choice = 0;
+        do {
+            System.out.println(OutputFormatter.printHorizontalBox(25));
+            System.out.println("\n\nCONFIRM TO ADD PRODUCT?");
+            System.out.println(OutputFormatter.printHorizontalBox(25));
+            System.out.println("1| Yes");
+            System.out.println("2| No");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.print("INPUT >>> ");
+
+            try {
+                choice = input.nextInt();
+                ConsumeCR(input);
                 
-            } catch (QuantityOutOfRangeException e) {
-                System.out.println("Quantity entered more than current quantity in cart");
+                switch(choice){
+                    case 1 -> {
+                        inventory.addNewProduct(name, ageRating, category, price,quantity);
+                        System.out.println("Product has been successfully added");
+                    }
+                    case 2 -> {
+                        
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
+                }
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
-                
-            } catch (QuantityMoreThanStockException e) {
-                System.out.println("Quantity entered more than available stock");
-                OutputFormatter.PressToCont();
-                OutputFormatter.clearJavaConsoleScreen();
-                
-            } 
-        }while(choice != 2);
+            }
+            
+            OutputFormatter.PressToCont();
+            
+        } while (choice < 1 || choice > 2);
+
     }
-    
-    public static void removeItem(Cart cart, Scanner input){
-        displayCart(cart);
+
+    public static void editProduct(Scanner input, Inventory inventory) {
+
     }
-    
+
     public static void ConsumeCR(Scanner input) {
         input.nextLine();
     }
