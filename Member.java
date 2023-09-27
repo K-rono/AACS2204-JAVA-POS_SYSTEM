@@ -8,7 +8,7 @@ package POS;
 public class Member extends User {
     private int loyaltyPoints;
 
-    public Member(int loyaltyPoints, String username, String userID, String userPassword) {
+    public Member(String userID, String userPassword, String username, int loyaltyPoints) {
         super(username, userID, userPassword);
         this.loyaltyPoints = loyaltyPoints;
     }
