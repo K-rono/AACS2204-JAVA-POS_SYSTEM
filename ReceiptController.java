@@ -117,12 +117,12 @@ public class ReceiptController {
             FileWriter fr = new FileWriter(filename, true);
             BufferedWriter br = new BufferedWriter(fr);
             PrintWriter pr = new PrintWriter(br);
-            String IDDate = String.format("%d,%d,", receiptID, timeInSecond);
+            String IDDate = String.format("%d,%d", receiptID, timeInSecond);
             pr.print(IDDate);
             for (Product product : payment.getItems()) {
                 int productID = product.getProductID();
                 double price = product.getPrice() * quantity.get(product);
-                String receiptData = String.format("%s,%d,%.2f", productID, quantity.get(product), price);
+                String receiptData = String.format(",%s,%d,%.2f", productID, quantity.get(product), price);
                 pr.print(receiptData);
             }
             pr.print("\n");
