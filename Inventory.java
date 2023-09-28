@@ -13,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public final class Inventory implements InventoryAPI {
 
@@ -90,40 +91,47 @@ public final class Inventory implements InventoryAPI {
     }
 
     public void updateProductToFile() {
-        for (Product product : products) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(PRODUCT_FILE_PATH))) {
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PRODUCT_FILE_PATH))) {
+            for (Product product : products) {
                 writer.write(product.getProductID()
                         + "," + product.getProductName()
                         + "," + product.getRatedAge()
                         + "," + product.getCategory()
                         + "," + product.getPrice());
                 writer.newLine();
-            } catch (IOException e) {
-                System.out.println("Error occured when writing to products text file");
             }
+        } catch (IOException e) {
+            System.out.println("Error occured when writing to products text file");
         }
+
     }
 
     public void updateStockToFile() {
-        for (Product product : products) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(STOCK_FILE_PATH))) {
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(STOCK_FILE_PATH))) {
+            for (Product product : products) {
                 writer.write(product.getProductID() + "," + productStock.get(product.getProductID()));
                 writer.newLine();
-            } catch (IOException e) {
-                System.out.println("Error occured when writing to stocks text file");
             }
+        } catch (IOException e) {
+            System.out.println("Error occured when writing to stocks text file");
         }
+
     }
 
     public void addNewProduct(String productName, String ratedAge, String category, double price, int qty) {
         Product product = new Product(productName, ratedAge, category, price);
+        products.add(product);
         productsByCategory.get(category).add(product);
+        productStock.put(product.getProductID(), qty);
         Product.writeLastAssignedID();
         appendProductToFile(product);
         appendStockToFile(product, qty);
     }
 
-    public void addStock(int productID, int qty) {
+    //to add Stock of each individual item
+    public void updateStock(int productID, int qty) {
         if (productStock.containsKey(productID)) {
             int currentStock = productStock.get(productID);
             productStock.put(productID, qty + currentStock);
@@ -134,9 +142,24 @@ public final class Inventory implements InventoryAPI {
         updateStockToFile();
     }
 
+    //To deduct stock after payments
+    public void updateStock(List<Product> items, Map<Product, Integer> quantity) {
+        for (Product product : items) {
+            int currentStock = productStock.get(product.getProductID());
+            int stockToBeDeducted = quantity.get(product);
+            productStock.put(product.getProductID(), currentStock - stockToBeDeducted);
+        }
+
+        updateStockToFile();
+    }
+
     public ArrayList<String> getCategory() {
         Set<String> categorySet = productsByCategory.keySet();
         return new ArrayList<>(categorySet);
+    }
+
+    public ArrayList<Product> getAllProduct() {
+        return products;
     }
 
     @Override
