@@ -14,6 +14,9 @@ public class Main {
     private static Object currentSessionUser;
 
     public static void main(String[] args) {
+        Inventory inventory = new Inventory();
+        Cart cart = new Cart(inventory);
+        Payment payment = new Payment(cart);
         Scanner input = new Scanner(System.in);
         int choice = 0;
 
@@ -34,7 +37,7 @@ public class Main {
                             boolean LoginSuccess = Login(input, choice);
                             if (LoginSuccess) {
                                 retry = 0; //reset 'retry' value if user succesfully log in AFTER failing one or more times
-                                MainMenu(input);
+                                MainMenu(input, inventory, cart, payment);
                             } else {
                                 retry = IncorrectLogin(input);
                                 //To loop LoginMenu() if user chooses to NOT retry
@@ -51,7 +54,7 @@ public class Main {
                     case 3 -> {
                         currentSessionUser = new Guess();
                         OutputFormatter.clearJavaConsoleScreen();
-                        MainMenu(input);
+                        MainMenu(input, inventory, cart, payment);
                     }
                     case 4 -> {
 
@@ -172,12 +175,9 @@ public class Main {
         return retry;
     }
 
-    public static void MainMenu(Scanner input) {
-        Inventory inventory = new Inventory();
-        Cart cart = new Cart(inventory);
-        Payment payment = new Payment(cart);
+    public static void MainMenu(Scanner input, Inventory inventory, Cart cart, Payment payment) {
         int choice = 0;
-        //int maxChoice = (currentSessionUser instanceof Staff) ? 7 : 5; // Max choice depends on staff or non-staff
+        boolean contPurchase = true;
 
         do {
             OutputFormatter.clearJavaConsoleScreen();
@@ -221,11 +221,15 @@ public class Main {
                         if (currentSessionUser instanceof Guess) {
                             userType = 2;
                         }
-
-                        checkOut(input, cart, payment, userType);
+                        try {
+                            contPurchase = checkOut(input, cart, payment, userType);
+                        } catch (IllegalStateException e) {
+                            System.out.println("No items has been added to cart yet");
+                        }
+                        OutputFormatter.PressToCont();
                     }
                     case 5 -> {
-
+                        cart.clearCart();
                     }
                     case 6 -> {
                         if (currentSessionUser instanceof Staff) {
@@ -258,7 +262,8 @@ public class Main {
                 OutputFormatter.clearJavaConsoleScreen();
             }
 
-        } while (choice != 5);
+        } while (choice != 5 && contPurchase);
+
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //1. Add [Payment payment = new Payment(cart);] in MainMenu
@@ -268,13 +273,24 @@ public class Main {
         double cashAmount = 0;
         do {
             System.out.print("[INPUT] Amount Paid >>> ");
-            cashAmount = input.nextDouble();
-            ConsumeCR(input);
-            
-            if (cashAmount >= payment.getDiscountedTotal()) {
-                payment.processCashPayment(cashAmount, methodPayment);
-            } else {
+
+            try {
+                cashAmount = input.nextDouble();
+                ConsumeCR(input);
+
+                if (cashAmount >= payment.getDiscountedTotal()) {
+                    payment.processCashPayment(cashAmount, methodPayment);
+                } else {
+                    throw new IllegalArgumentException("Insufficient payment. Please provide enough funds.");
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+            } catch (IllegalArgumentException e) {
                 System.out.println("Insufficient payment. Please provide enough funds.");
+                OutputFormatter.PressToCont();
             }
 
         } while (cashAmount < payment.getDiscountedTotal());
@@ -283,12 +299,12 @@ public class Main {
 
     public static void paymentProcess(Scanner input, Payment payment, int userType) {
         int choice = 0;
-        System.out.println("Payment Option: ");
-        System.out.println("1| Cash Payment");
-        System.out.println("2| Online Payment");
-        System.out.println(OutputFormatter.printHorizontalLine(25));
-        System.out.print("INPUT >>> ");
         do {
+            System.out.println("Payment Option: ");
+            System.out.println("1| Cash Payment");
+            System.out.println("2| Online Payment");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.print("INPUT >>> ");
             try {
                 choice = input.nextInt();
                 ConsumeCR(input);
@@ -316,11 +332,12 @@ public class Main {
                 OutputFormatter.clearJavaConsoleScreen();
             }
 
-        } while (choice == 1 || choice == 2);
+        } while (choice < 1 || choice > 2);
     }
 
-    public static void checkOut(Scanner input, Cart cart, Payment payment, int userType) {
+    public static boolean checkOut(Scanner input, Cart cart, Payment payment, int userType) {
         int choice = 0;
+        boolean contPurchase = true;
         do {
             OutputFormatter.clearJavaConsoleScreen();
             System.out.println(OutputFormatter.printHorizontalLine(110));
@@ -341,12 +358,14 @@ public class Main {
                 switch (choice) {
                     case 1 -> {
                         paymentProcess(input, payment, userType);
-
-                        System.out.println(OutputFormatter.printHorizontalLine(25));
-                        System.out.println("Do you want to continue purchase? (Y/N)");
-                        System.out.print("INPUT >>> ");
-
+                        
+                        ReceiptController receiptController = new ReceiptController(payment);
+                        receiptController.generateReceipt();
+                        receiptController.writeToFile();
+                        
+                        cart.clearCart();
                         OutputFormatter.PressToCont();
+                        contPurchase = promptContinuePurchase(input); //Return true if User wants to cont. purchase
                     }
                     case 2 -> {
                         payment.cancelPayment();
@@ -367,8 +386,55 @@ public class Main {
                 OutputFormatter.clearJavaConsoleScreen();
             }
 
-        } while (choice != 2);
+        } while (choice < 1 || choice > 2);
 
+        return contPurchase;
+    }
+
+    public static boolean promptContinuePurchase(Scanner input) {
+        int choice = 0;
+        boolean contPurchase = false;
+        do {
+            OutputFormatter.clearJavaConsoleScreen();
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.println("Do you want to continue purchase?");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.println("1| Yes");
+            System.out.println("2| No");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.print("INPUT >>> ");
+
+            try {
+                choice = input.nextInt();
+                ConsumeCR(input);
+
+                switch (choice) {
+                    case 1 -> {
+                        contPurchase = true;
+                    }
+                    case 2 -> {
+                        contPurchase = false;
+                    }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+                OutputFormatter.clearJavaConsoleScreen();
+
+            } catch (IllegalArgumentException e) {
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                OutputFormatter.PressToCont();
+                OutputFormatter.clearJavaConsoleScreen();
+            }
+
+        } while (choice < 1 || choice > 2);
+
+        return contPurchase;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -657,6 +723,7 @@ public class Main {
                     }
                     case 2 -> {
                         editProduct(input, inventory);
+                        OutputFormatter.PressToCont();
                     }
                     case 3 -> {
 
@@ -786,6 +853,20 @@ public class Main {
             }
         } while (category.isEmpty());
 
+        //Initial Stock amount
+        do {
+            try {
+                System.out.print("Stock amount >>> ");
+                quantity = input.nextInt();
+                ConsumeCR(input);
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+            }
+        } while (quantity < 0);
+
         int choice = 0;
         do {
             System.out.println(OutputFormatter.printHorizontalBox(25));
@@ -828,8 +909,39 @@ public class Main {
 
     }
 
-    public static void editProduct(Scanner input, Inventory inventory) {
+    public static void displayProductList(Inventory inventory) {
+        ArrayList<Product> products = inventory.getAllProduct();
 
+        System.out.printf("%-10s %-40s %-12s %-10s\n", "Book ID", "Title", "Age Rating", "Price (RM)");
+        for (Product product : products) {
+            System.out.println(product.toString());
+        }
+    }
+
+    public static void editProduct(Scanner input, Inventory inventory) {
+        do {
+            OutputFormatter.clearJavaConsoleScreen();
+            System.out.println(OutputFormatter.printHorizontalBox(25));
+            System.out.println("EDIT PRODUCT");
+            System.out.println(OutputFormatter.printHorizontalBox(25));
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.println("PRODUCT LIST");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            displayProductList(inventory);
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.println("Product ID >>> ");
+
+            try {
+                int id = input.nextInt();
+                ConsumeCR(input);
+
+            } catch (InputMismatchException e) {
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+            }
+
+        } while (true);
     }
 
     // SLAES REPORT
@@ -841,6 +953,7 @@ public class Main {
             salesReport.calculateProductQuantity();
             salesReport.calculateProductSales();
 
+            OutputFormatter.clearJavaConsoleScreen();
             System.out.printf("%-25s\n", "[SALES REPORT]");
             System.out.printf("%-25s\n", "1| Product Sales Report");
             System.out.printf("%-25s\n", "2| Total Sales Report");
@@ -868,12 +981,16 @@ public class Main {
                     case 3 -> {
 
                     }
+                    default -> {
+                        throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                    }
                 }
             } catch (InputMismatchException e) {
                 System.out.println(OutputFormatter.INVALID_INPUT_MSG);
                 OutputFormatter.PressToCont();
                 ConsumeCR(input);
                 OutputFormatter.clearJavaConsoleScreen();
+
             } catch (IllegalArgumentException e) {
                 System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                 OutputFormatter.PressToCont();
