@@ -96,7 +96,7 @@ public class SalesReport{
     // Print the product sales report
     System.out.println("\n\nProduct Sales Report");
     System.out.println("--------------------");
-    System.out.printf("%-10s %-20s %-15s %-15s%n", "Product ID", "Product Name", "Total Quantity", "Total Revenue");
+    System.out.printf("%-10s %-40s %-15s %-15s%n", "Product ID", "Product Name", "Total Quantity", "Total Revenue");
     
     for (Map.Entry<Integer, Integer> entry : productQuantityMap.entrySet()) {
         int productID = entry.getKey();
@@ -107,7 +107,7 @@ public class SalesReport{
             double productSales = productSalesMap.get(productID);
            
             String productName = inventoryAPI.getProduct(entry.getKey()).getProductName();
-            System.out.printf("%-10d %-20s %-15d $%.2f\n", productID, productName, productQty, productSales);
+            System.out.printf("%-10d %-40s %-15d $%.2f\n", productID, productName, productQty, productSales);
         } 
         else {
             System.out.println("Product with ID " + productID + " not found in productSalesMap.");
