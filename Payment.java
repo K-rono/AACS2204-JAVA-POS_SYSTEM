@@ -68,7 +68,7 @@ public class Payment {
         processPayment(DiscountedTotal, paymentMethod);
     }
 
-    public void processPayment(double amountPaid, int paymentMethod) {  // Payment Method: 1= Cash, 2= Online transfer
+    private void processPayment(double amountPaid, int paymentMethod) {  // Payment Method: 1= Cash, 2= Online transfer
         if (paymentMethod == 1) {
             double change = amountPaid - DiscountedTotal;
             System.out.printf("Payment successful. Change: RM %.2f%n", change);
