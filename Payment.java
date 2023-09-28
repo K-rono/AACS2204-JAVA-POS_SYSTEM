@@ -43,6 +43,7 @@ public class Payment {
 
     private void calculateDiscount(int userType) {
         DiscountAmount = 0;
+        DiscountedTotal = 0;
         // UserType = 1 = MEMBER, 2 = GUEST
         if (userType == MEMBER) {
             if (subTotal >= 200) {
@@ -55,9 +56,8 @@ public class Payment {
         } else if (userType == GUEST && subTotal >= 200) {
             // Guest with subtotal >= 200
             DiscountAmount = subTotal * DISCOUNT_RATE;
-        } else {
-            DiscountedTotal = subTotal - DiscountAmount;
         }
+        DiscountedTotal = subTotal - DiscountAmount;
     }
 
     public void processCashPayment(double amountPaid, int paymentMethod) {
@@ -70,13 +70,8 @@ public class Payment {
 
     public void processPayment(double amountPaid, int paymentMethod) {  // Payment Method: 1= Cash, 2= Online transfer
         if (paymentMethod == 1) {
-            if (amountPaid >= DiscountedTotal) {
-                double change = amountPaid - DiscountedTotal;
-                // here can be generate receipt
-                System.out.printf("Payment successful. Change: $%.2f%n", change);
-            } else {
-                System.out.println("Insufficient payment. Please provide enough funds.");
-            }
+            double change = amountPaid - DiscountedTotal;
+            System.out.printf("Payment successful. Change: RM %.2f%n", change);
         } else {
             // The E-money must match the FinalTotal Amount
             System.out.println("Payment successful.");

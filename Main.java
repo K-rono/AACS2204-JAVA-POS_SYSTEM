@@ -218,9 +218,10 @@ public class Main {
                         if (currentSessionUser instanceof Member) {
                             userType = 1;
                         }
-                        if (currentSessionUser instanceof Guess)
+                        if (currentSessionUser instanceof Guess) {
                             userType = 2;
-                        
+                        }
+
                         checkOut(input, cart, payment, userType);
                     }
                     case 5 -> {
@@ -236,7 +237,7 @@ public class Main {
                     case 7 -> {
                         if (currentSessionUser instanceof Staff) {
                             SalesReportMenu(input); // SalesReport
-                            OutputFormatter.PressToCont(); 
+                            OutputFormatter.PressToCont();
                         } else {
                             throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
                         }
@@ -262,16 +263,21 @@ public class Main {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //1. Add [Payment payment = new Payment(cart);] in MainMenu
     //2. And change case 4 in MainMenu
-    
+
     public static void cashPaymentProcess(Scanner input, Payment payment, int methodPayment) {
         double cashAmount = 0;
         do {
             System.out.print("[INPUT] Amount Paid >>> ");
             cashAmount = input.nextDouble();
             ConsumeCR(input);
-            payment.processCashPayment(cashAmount, methodPayment);
             
-        } while (cashAmount <= payment.getDiscountedTotal());
+            if (cashAmount >= payment.getDiscountedTotal()) {
+                payment.processCashPayment(cashAmount, methodPayment);
+            } else {
+                System.out.println("Insufficient payment. Please provide enough funds.");
+            }
+
+        } while (cashAmount < payment.getDiscountedTotal());
 
     }
 
@@ -335,11 +341,11 @@ public class Main {
                 switch (choice) {
                     case 1 -> {
                         paymentProcess(input, payment, userType);
-                        
+
                         System.out.println(OutputFormatter.printHorizontalLine(25));
                         System.out.println("Do you want to continue purchase? (Y/N)");
                         System.out.print("INPUT >>> ");
-                        
+
                         OutputFormatter.PressToCont();
                     }
                     case 2 -> {
@@ -362,11 +368,10 @@ public class Main {
             }
 
         } while (choice != 2);
-        
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     public static void categoryMenu(Scanner input, Inventory inventory, Cart cart) {
         int choice = 0;
 
@@ -498,6 +503,8 @@ public class Main {
     }
 
     public static void displayCart(Cart cart) {
+        System.out.println("                                 Cart List                                    ");
+        System.out.println(OutputFormatter.printHorizontalLine(110));
         try {
             cart.displayCartContents();
         } catch (IllegalStateException e) {
@@ -792,14 +799,14 @@ public class Main {
             try {
                 choice = input.nextInt();
                 ConsumeCR(input);
-                
-                switch(choice){
+
+                switch (choice) {
                     case 1 -> {
-                        inventory.addNewProduct(name, ageRating, category, price,quantity);
+                        inventory.addNewProduct(name, ageRating, category, price, quantity);
                         System.out.println("Product has been successfully added");
                     }
                     case 2 -> {
-                        
+
                     }
                     default -> {
                         throw new IllegalArgumentException(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
@@ -814,9 +821,9 @@ public class Main {
                 OutputFormatter.PressToCont();
                 OutputFormatter.clearJavaConsoleScreen();
             }
-            
+
             OutputFormatter.PressToCont();
-            
+
         } while (choice < 1 || choice > 2);
 
     }
@@ -824,57 +831,57 @@ public class Main {
     public static void editProduct(Scanner input, Inventory inventory) {
 
     }
-    
+
     // SLAES REPORT
     public static void SalesReportMenu(Scanner input) {
         int choice = 0;
         SalesReport salesReport = new SalesReport();
-        do{
-            
-        salesReport.calculateProductQuantity();
-        salesReport.calculateProductSales();
-        
-        System.out.printf("%-25s\n", "[SALES REPORT]");
-        System.out.printf("%-25s\n", "1| Product Sales Report");
-        System.out.printf("%-25s\n", "2| Total Sales Report");
-        System.out.printf("%-25s\n", "3| Return");
-        System.out.println(OutputFormatter.printHorizontalLine(25));
-        System.out.print("INPUT >>> ");
-        
-         try{
-             choice = input.nextInt();
-               ConsumeCR(input);
-            
-             switch (choice) {
-                   case 1 -> {
-                       salesReport.generateProductSalesReport();
-                       OutputFormatter.PressToCont();
-                       OutputFormatter.clearJavaConsoleScreen();
-                   }
-                
-                  case 2 -> {
-                     salesReport.generateTotalSalesReport();
-                     OutputFormatter.PressToCont();
-                     OutputFormatter.clearJavaConsoleScreen();
-                   }
-                  
-                  case 3 -> {
-                      
-                  }
-             }
+        do {
+
+            salesReport.calculateProductQuantity();
+            salesReport.calculateProductSales();
+
+            System.out.printf("%-25s\n", "[SALES REPORT]");
+            System.out.printf("%-25s\n", "1| Product Sales Report");
+            System.out.printf("%-25s\n", "2| Total Sales Report");
+            System.out.printf("%-25s\n", "3| Return");
+            System.out.println(OutputFormatter.printHorizontalLine(25));
+            System.out.print("INPUT >>> ");
+
+            try {
+                choice = input.nextInt();
+                ConsumeCR(input);
+
+                switch (choice) {
+                    case 1 -> {
+                        salesReport.generateProductSalesReport();
+                        OutputFormatter.PressToCont();
+                        OutputFormatter.clearJavaConsoleScreen();
+                    }
+
+                    case 2 -> {
+                        salesReport.generateTotalSalesReport();
+                        OutputFormatter.PressToCont();
+                        OutputFormatter.clearJavaConsoleScreen();
+                    }
+
+                    case 3 -> {
+
+                    }
+                }
             } catch (InputMismatchException e) {
-                    System.out.println(OutputFormatter.INVALID_INPUT_MSG);
-                    OutputFormatter.PressToCont();
-                    ConsumeCR(input);
-                    OutputFormatter.clearJavaConsoleScreen();
+                System.out.println(OutputFormatter.INVALID_INPUT_MSG);
+                OutputFormatter.PressToCont();
+                ConsumeCR(input);
+                OutputFormatter.clearJavaConsoleScreen();
             } catch (IllegalArgumentException e) {
-                    System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
-                    OutputFormatter.PressToCont();
-                    OutputFormatter.clearJavaConsoleScreen();
+                System.out.println(OutputFormatter.OUT_OF_RANGE_ERROR_MSG);
+                OutputFormatter.PressToCont();
+                OutputFormatter.clearJavaConsoleScreen();
             }
         } while (choice != 3);
-        
-        }
+
+    }
 
     public static void ConsumeCR(Scanner input) {
         input.nextLine();
